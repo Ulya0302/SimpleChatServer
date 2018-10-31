@@ -1,37 +1,70 @@
 import socket
-
-HOST = '127.0.0.1'
-
-sock = socket.socket()
-print("Connecting...")
-sock.connect((HOST, 6074))
-print('Connected to ', HOST)
+import threading
 
 
-data = sock.recv(1024)
-if data.decode() == "Hello! Please, entry your name: ":
-    name = input(data.decode())
-    sock.send(name.encode())
-    data = sock.recv(1024)
-    print(data.decode())
-else:
-    print(data.decode())
+class Client(object):
+
+    def __init__(self, host='127.0.0.1'):
+        self.HOST = host
+        self.sock = socket.socket()
+
+    def connect(self):
+        print("Connecting...")
+        self.sock.connect((self.HOST, 5100))
+        print('Connected to ', self.HOST)
+        self.authentication()
+
+    def authentication(self):
+        data = self.sock.recv(1024)  # Please entry your login
+        self.login = input(data.decode())
+        self.sock.send(self.login.encode())
+        data = self.sock.recv(1024)
+        while True:
+            self.passwd = input(data.decode())
+            self.sock.send(self.passwd.encode())
+            data = self.sock.recv(1024)
+            if data.decode() == "Welcome!":
+                print(data.decode())
+                break
+        flag = True
+        while flag:
+            data = self.sock.recv(1024)
+            if "End" in data.decode():
+                flag = False
+            print(data.decode())
+        self.chating()
 
 
-while True:
-    try:
-        data = input("Enter your message to server: ")
-        if data == 'exit':
-            break
-        sock.send(data.encode())
-        print("Message was sended")
-        data = sock.recv(1024)
-        print('This was recieved from server:')
-        print(data.decode())
-    except (ConnectionResetError):
-        print("\nServer forcibly disconnected!!")
-        break
-sock.close()
-print('Connection with', HOST, 'was closed')
+    def chating(self):
+        Client.send = threading.Thread(target=self.sending, daemon=True)
+        Client.get = threading.Thread(target=self.getting, daemon=True)
+        Client.send.start()
+        Client.get.start()
+        Client.send.join()
+        self.sock.close()
 
-input("Press Enter to exit")
+    def sending(self):
+        while True:
+            try:
+                data = input("> ")
+                if data == "exit":
+                    break
+                self.sock.send(data.encode())
+            except (ConnectionResetError):
+                print("\nServer forcibly disconnected!!")
+                break
+
+    def getting(self):
+        while True:
+            try:
+                data = self.sock.recv(1024).decode()
+                if not data.split()[2][:-1] == self.login:
+                    print(data + "\n>")
+            except:
+                print("You are disconnected from server")
+                break
+
+if __name__ == "__main__":
+    cl = Client()
+    cl.connect()
+    input("Press Enter to exit")

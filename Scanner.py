@@ -7,11 +7,10 @@ class Scanner(object):
     available_ports = []
     host = ''
     n1 = 0 #Число завершивших работу потоков
-    start: int = 5000
+    start: int = 0
     end = 5200
-    step = 50
+    step = 20
     PORTS = end - start
-    clear = lambda: os.system('cls')
 
     def __init__(self, host_or_ip):
         Scanner.host = host_or_ip
@@ -33,7 +32,6 @@ class Scanner(object):
             thr.start()
         for thr in threads:
             thr.join()
-
 
     def to_scan(self, min, max):
         for port in range(min, max):
@@ -65,6 +63,10 @@ class Scanner(object):
     def show(self):
         for el in sorted(Scanner.available_ports):
             print(f"Port {el} is available")
+
+    @classmethod
+    def clear(cls):
+        os.system('cls')
 
 if __name__ == "__main__":
     host_ip = input("Entry host or IP: ")
