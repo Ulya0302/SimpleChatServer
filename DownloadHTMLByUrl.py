@@ -16,7 +16,7 @@ class LoadHtml(object):
         try:
             r = http.request('GET', f"http://{url}/")
         except (urllib3.exceptions.HTTPError, urllib3.exceptions.TimeoutError, urllib3.exceptions.ConnectTimeoutError):
-            print(f"Error in dowonload {url}")
+            print(f"Error in download {url}")
         else:
             print(f"Downloading {url} completed. Start writing....")
             with open(f"resources/{url}.html", 'wb') as f:
