@@ -1,2 +1,5 @@
 .idea/
-log.txt
+users.txt
+*.html
+other/
+resources/
