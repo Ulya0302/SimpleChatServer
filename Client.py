@@ -7,6 +7,8 @@ class Client(object):
     def __init__(self, host='127.0.0.1'):
         self.HOST = host
         self.sock = socket.socket()
+        self.login = ''
+        self.passwd = ''
 
     def connect(self):
         print("Connecting...")
@@ -34,7 +36,6 @@ class Client(object):
             print(data.decode())
         self.chating()
 
-
     def chating(self):
         Client.send = threading.Thread(target=self.sending, daemon=True)
         Client.get = threading.Thread(target=self.getting, daemon=True)
@@ -50,7 +51,7 @@ class Client(object):
                 if data == "exit":
                     break
                 self.sock.send(data.encode())
-            except (ConnectionResetError):
+            except ConnectionResetError:
                 print("\nServer forcibly disconnected!!")
                 break
 
@@ -60,9 +61,10 @@ class Client(object):
                 data = self.sock.recv(1024).decode()
                 if not data.split()[2][:-1] == self.login:
                     print(data + "\n>")
-            except:
+            except ConnectionResetError:
                 print("You are disconnected from server")
                 break
+
 
 if __name__ == "__main__":
     cl = Client()
